@@ -24,7 +24,7 @@ export function SummaryStats({ finalPrice, factoryPrice, gap, gapPercent }: Prop
     },
     {
       icon: TrendingUp,
-      label: "GAP (lucro)",
+      label: "Lucro",
       value: formatBRL(gap),
       sub: `${formatPercent(gapPercent)} sobre fábrica`,
       tone: "text-safe",
