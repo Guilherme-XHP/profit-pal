@@ -15,7 +15,7 @@ const Index = () => {
   const [inputs, setInputs] = useState<CalculatorInputs>({
     finalPrice: 0,
     factoryPrice: 0,
-    perColumn: 6,
+    perColumn: 5,
   });
   const [moneyValue, setMoneyValue] = useState("");
   const [customValue, setCustomValue] = useState("");
@@ -46,23 +46,23 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex h-screen flex-col bg-background overflow-hidden">
       {/* Header */}
-      <header className="border-b border-border/60 bg-card/50 backdrop-blur-sm">
-        <div className="container flex items-center justify-between py-5">
+      <header className="shrink-0 border-b border-border/60 bg-card/50 backdrop-blur-sm">
+        <div className="flex items-center justify-between px-6 py-3">
           <div className="flex items-center gap-3">
             <div
-              className="flex h-11 w-11 items-center justify-center rounded-xl text-primary-foreground shadow-lg"
+              className="flex h-10 w-10 items-center justify-center rounded-xl text-primary-foreground shadow-lg"
               style={{ background: "var(--gradient-hero)" }}
             >
               <Calculator className="h-5 w-5" />
             </div>
             <div>
-              <h1 className="text-xl font-bold leading-tight tracking-tight text-foreground">
+              <h1 className="text-base font-bold leading-tight tracking-tight text-foreground">
                 Calculadora de Descontos
               </h1>
-              <p className="text-xs text-muted-foreground">
-                Decisões seguras de venda baseadas no GAP
+              <p className="text-[11px] text-muted-foreground">
+                Decisões seguras de venda baseadas no Lucro
               </p>
             </div>
           </div>
@@ -70,89 +70,88 @@ const Index = () => {
         </div>
       </header>
 
-      <main className="container space-y-6 py-8">
-        {/* Inputs */}
-        <InputsCard values={inputs} onChange={setInputs} />
+      {/* Main 3-pane layout */}
+      <main className="flex-1 min-h-0 overflow-hidden p-3">
+        <div className="grid h-full min-h-0 gap-3 grid-cols-1 lg:grid-cols-12">
+          {/* LEFT — inputs & tools */}
+          <aside className="lg:col-span-4 xl:col-span-3 flex flex-col gap-3 min-h-0 overflow-y-auto pr-1">
+            <InputsCard values={inputs} onChange={setInputs} />
+            <MoneyDiscount
+              value={moneyValue}
+              onChange={setMoneyValue}
+              finalPrice={inputs.finalPrice}
+              gap={gap}
+            />
+            <CustomPercents
+              value={customValue}
+              onChange={setCustomValue}
+              onParsed={setCustomGroups}
+              finalPrice={inputs.finalPrice}
+              gap={gap}
+            />
+          </aside>
 
-        {/* Stats summary */}
-        <SummaryStats
-          finalPrice={inputs.finalPrice}
-          factoryPrice={inputs.factoryPrice}
-          gap={gap}
-          gapPercent={gapPercent}
-        />
-
-        {/* Money discount — primary helper */}
-        <MoneyDiscount
-          value={moneyValue}
-          onChange={setMoneyValue}
-          finalPrice={inputs.finalPrice}
-          gap={gap}
-        />
-
-        {/* Custom percents */}
-        <CustomPercents
-          value={customValue}
-          onChange={setCustomValue}
-          onParsed={setCustomGroups}
-          finalPrice={inputs.finalPrice}
-          gap={gap}
-        />
-
-        {/* Smart suggestions — adapts to money discount + custom percents */}
-        <SmartSuggestions
-          finalPrice={inputs.finalPrice}
-          gap={gap}
-          anchorAmount={moneyValue === "" ? 0 : Number(moneyValue) || 0}
-          anchorPercents={customValue
-            .split(/[,;\s]+/)
-            .map((s) => Number(s.replace("%", "").replace(",", ".").trim()))
-            .filter((n) => !Number.isNaN(n) && n > 0)}
-        />
-
-        {/* Result columns */}
-        <section>
-          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <h2 className="text-lg font-bold tracking-tight text-foreground">
-                Faixas de desconto sugeridas
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                Calculadas sobre o Lucro de {gap > 0 ? `R$ ${gap.toLocaleString("pt-BR")}` : "—"}
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Label
-                htmlFor="perColumn"
-                className="text-xs font-medium uppercase tracking-wide text-muted-foreground whitespace-nowrap"
-              >
-                Valores por coluna
-              </Label>
-              <Input
-                id="perColumn"
-                type="number"
-                inputMode="numeric"
-                min={1}
-                max={20}
-                step="1"
-                value={inputs.perColumn === 0 ? "" : inputs.perColumn}
-                placeholder="6"
-                onChange={(e) => updatePerColumn(e.target.value)}
-                className="h-10 w-20 text-base font-medium tabular-nums"
+          {/* CENTER — stats + smart suggestions */}
+          <section className="lg:col-span-3 xl:col-span-3 flex flex-col gap-3 min-h-0">
+            <SummaryStats
+              finalPrice={inputs.finalPrice}
+              factoryPrice={inputs.factoryPrice}
+              gap={gap}
+              gapPercent={gapPercent}
+            />
+            <div className="flex-1 min-h-0 overflow-y-auto">
+              <SmartSuggestions
+                finalPrice={inputs.finalPrice}
+                gap={gap}
+                anchorAmount={moneyValue === "" ? 0 : Number(moneyValue) || 0}
+                anchorPercents={customValue
+                  .split(/[,;\s]+/)
+                  .map((s) => Number(s.replace("%", "").replace(",", ".").trim()))
+                  .filter((n) => !Number.isNaN(n) && n > 0)}
               />
             </div>
-          </div>
+          </section>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <DiscountColumn variant="safe" title="Seguro" range="0% – 30%" rows={columns.safe} />
-            <DiscountColumn variant="moderate" title="Moderado" range="30% – 60%" rows={columns.moderate} />
-            <DiscountColumn variant="risky" title="Arriscado" range="60% – 90%" rows={columns.risky} />
-          </div>
-        </section>
+          {/* RIGHT — discount range columns */}
+          <section className="lg:col-span-5 xl:col-span-6 flex flex-col gap-2 min-h-0">
+            <div className="flex items-center justify-between gap-3 px-1">
+              <div>
+                <h2 className="text-sm font-bold tracking-tight text-foreground">
+                  Faixas de desconto
+                </h2>
+                <p className="text-[11px] text-muted-foreground">
+                  Sobre o Lucro de {gap > 0 ? `R$ ${gap.toLocaleString("pt-BR")}` : "—"}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Label
+                  htmlFor="perColumn"
+                  className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground whitespace-nowrap"
+                >
+                  Por coluna
+                </Label>
+                <Input
+                  id="perColumn"
+                  type="number"
+                  inputMode="numeric"
+                  min={1}
+                  max={20}
+                  step="1"
+                  value={inputs.perColumn === 0 ? "" : inputs.perColumn}
+                  placeholder="5"
+                  onChange={(e) => updatePerColumn(e.target.value)}
+                  className="h-8 w-16 text-sm font-medium tabular-nums"
+                />
+              </div>
+            </div>
 
-        <footer className="pt-4 text-center text-xs text-muted-foreground">
-          Os percentuais são aplicados sobre o Lucro, não sobre o valor de fábrica.
-        </footer>
+            <div className="grid flex-1 min-h-0 grid-cols-1 gap-2 md:grid-cols-3">
+              <DiscountColumn variant="safe" title="Seguro" range="0–30%" rows={columns.safe} />
+              <DiscountColumn variant="moderate" title="Moderado" range="30–60%" rows={columns.moderate} />
+              <DiscountColumn variant="risky" title="Arriscado" range="60–90%" rows={columns.risky} />
+            </div>
+          </section>
+        </div>
       </main>
     </div>
   );

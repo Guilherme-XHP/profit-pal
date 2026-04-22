@@ -35,7 +35,7 @@ export function InputsCard({ values, onChange }: Props) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
           {fields.map((f) => (
             <div key={f.key} className="space-y-1.5">
               <Label htmlFor={f.key} className="text-xs font-medium uppercase tracking-wide text-muted-foreground">

@@ -32,20 +32,20 @@ export function SummaryStats({ finalPrice, factoryPrice, gap, gapPercent }: Prop
   ];
 
   return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+    <div className="grid grid-cols-3 gap-2">
       {items.map((it) => (
         <div
           key={it.label}
-          className="rounded-2xl border border-border/60 bg-card p-4 shadow-[var(--shadow-card)]"
+          className="rounded-xl border border-border/60 bg-card p-2.5 shadow-[var(--shadow-card)]"
         >
-          <div className="flex items-center gap-2">
-            <it.icon className={`h-4 w-4 ${it.tone}`} />
-            <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          <div className="flex items-center gap-1.5">
+            <it.icon className={`h-3 w-3 ${it.tone}`} />
+            <span className="text-[9px] font-medium uppercase tracking-wide text-muted-foreground truncate">
               {it.label}
             </span>
           </div>
-          <p className={`mt-2 text-2xl font-bold tabular-nums ${it.tone}`}>{it.value}</p>
-          {it.sub && <p className="text-xs text-muted-foreground">{it.sub}</p>}
+          <p className={`mt-1 text-sm font-bold tabular-nums truncate ${it.tone}`}>{it.value}</p>
+          {it.sub && <p className="text-[9px] text-muted-foreground truncate">{it.sub}</p>}
         </div>
       ))}
     </div>
