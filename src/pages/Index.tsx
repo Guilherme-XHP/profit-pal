@@ -8,6 +8,7 @@ import { MoneyDiscount } from "@/components/MoneyDiscount";
 import { CustomPercents } from "@/components/CustomPercents";
 import { DiscountColumn } from "@/components/DiscountColumn";
 import { SummaryStats } from "@/components/SummaryStats";
+import { SmartSuggestions } from "@/components/SmartSuggestions";
 import { buildDiscountRow, generateRange, type DiscountRow } from "@/lib/discount";
 
 const Index = () => {
@@ -81,7 +82,15 @@ const Index = () => {
           gapPercent={gapPercent}
         />
 
-        {/* Custom percents — main tool */}
+        {/* Money discount — primary helper */}
+        <MoneyDiscount
+          value={moneyValue}
+          onChange={setMoneyValue}
+          finalPrice={inputs.finalPrice}
+          gap={gap}
+        />
+
+        {/* Custom percents */}
         <CustomPercents
           value={customValue}
           onChange={setCustomValue}
@@ -90,12 +99,15 @@ const Index = () => {
           gap={gap}
         />
 
-        {/* Money discount — secondary helper */}
-        <MoneyDiscount
-          value={moneyValue}
-          onChange={setMoneyValue}
+        {/* Smart suggestions — adapts to money discount + custom percents */}
+        <SmartSuggestions
           finalPrice={inputs.finalPrice}
           gap={gap}
+          anchorAmount={moneyValue === "" ? 0 : Number(moneyValue) || 0}
+          anchorPercents={customValue
+            .split(/[,;\s]+/)
+            .map((s) => Number(s.replace("%", "").replace(",", ".").trim()))
+            .filter((n) => !Number.isNaN(n) && n > 0)}
         />
 
         {/* Result columns */}
@@ -106,7 +118,7 @@ const Index = () => {
                 Faixas de desconto sugeridas
               </h2>
               <p className="text-sm text-muted-foreground">
-                Calculadas sobre o GAP de {gap > 0 ? `R$ ${gap.toLocaleString("pt-BR")}` : "—"}
+                Calculadas sobre o Lucro de {gap > 0 ? `R$ ${gap.toLocaleString("pt-BR")}` : "—"}
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -139,7 +151,7 @@ const Index = () => {
         </section>
 
         <footer className="pt-4 text-center text-xs text-muted-foreground">
-          Os percentuais são aplicados sobre o GAP (lucro), não sobre o valor de fábrica.
+          Os percentuais são aplicados sobre o Lucro, não sobre o valor de fábrica.
         </footer>
       </main>
     </div>
