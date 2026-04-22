@@ -1,16 +1,122 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useMemo, useState } from "react";
+import { Calculator } from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { InputsCard, type CalculatorInputs } from "@/components/InputsCard";
+import { MoneyDiscount } from "@/components/MoneyDiscount";
+import { CustomPercents } from "@/components/CustomPercents";
+import { DiscountColumn } from "@/components/DiscountColumn";
+import { SummaryStats } from "@/components/SummaryStats";
+import { buildDiscountRow, generateRange, type DiscountRow } from "@/lib/discount";
 
-// IMPORTANT: Fully REPLACE this with your own code
-const PlaceholderIndex = () => {
-  // PLACEHOLDER: Replace this entire return statement with the user's app.
-  // The inline background color is intentionally not part of the design system.
+const Index = () => {
+  const [inputs, setInputs] = useState<CalculatorInputs>({
+    finalPrice: 20000,
+    factoryPrice: 18000,
+    desiredProfit: 10,
+    perColumn: 6,
+  });
+  const [moneyValue, setMoneyValue] = useState("200");
+  const [customValue, setCustomValue] = useState("");
+  const [customGroups, setCustomGroups] = useState<{
+    safe: DiscountRow[];
+    moderate: DiscountRow[];
+    risky: DiscountRow[];
+  }>({ safe: [], moderate: [], risky: [] });
+
+  const gap = Math.max(inputs.finalPrice - inputs.factoryPrice, 0);
+  const gapPercent = inputs.factoryPrice > 0 ? (gap / inputs.factoryPrice) * 100 : 0;
+
+  const columns = useMemo(() => {
+    const count = Math.max(1, Math.min(20, Math.floor(inputs.perColumn || 1)));
+    const make = (start: number, end: number) =>
+      generateRange(start, end, count).map((p) => buildDiscountRow(p, inputs.finalPrice, gap));
+
+    const safe = [...make(0.01, 30), ...customGroups.safe].sort((a, b) => a.percent - b.percent);
+    const moderate = [...make(30.01, 60), ...customGroups.moderate].sort((a, b) => a.percent - b.percent);
+    const risky = [...make(60.01, 90), ...customGroups.risky].sort((a, b) => a.percent - b.percent);
+    return { safe, moderate, risky };
+  }, [inputs.finalPrice, inputs.perColumn, gap, customGroups]);
+
   return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#fcfbf8' }}>
-      <img data-lovable-blank-page-placeholder="REMOVE_THIS" src="/placeholder.svg" alt="Your app will live here!" />
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="border-b border-border/60 bg-card/50 backdrop-blur-sm">
+        <div className="container flex items-center justify-between py-5">
+          <div className="flex items-center gap-3">
+            <div
+              className="flex h-11 w-11 items-center justify-center rounded-xl text-primary-foreground shadow-lg"
+              style={{ background: "var(--gradient-hero)" }}
+            >
+              <Calculator className="h-5 w-5" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold leading-tight tracking-tight text-foreground">
+                Calculadora de Descontos
+              </h1>
+              <p className="text-xs text-muted-foreground">
+                Decisões seguras de venda baseadas no GAP
+              </p>
+            </div>
+          </div>
+          <ThemeToggle />
+        </div>
+      </header>
+
+      <main className="container space-y-6 py-8">
+        {/* Inputs */}
+        <InputsCard values={inputs} onChange={setInputs} />
+
+        {/* Stats summary */}
+        <SummaryStats
+          finalPrice={inputs.finalPrice}
+          factoryPrice={inputs.factoryPrice}
+          gap={gap}
+          gapPercent={gapPercent}
+        />
+
+        {/* Tools row */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <MoneyDiscount
+            value={moneyValue}
+            onChange={setMoneyValue}
+            finalPrice={inputs.finalPrice}
+            gap={gap}
+          />
+          <CustomPercents
+            value={customValue}
+            onChange={setCustomValue}
+            onParsed={setCustomGroups}
+            finalPrice={inputs.finalPrice}
+            gap={gap}
+          />
+        </div>
+
+        {/* Result columns */}
+        <section>
+          <div className="mb-4 flex items-end justify-between">
+            <div>
+              <h2 className="text-lg font-bold tracking-tight text-foreground">
+                Faixas de desconto sugeridas
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Calculadas sobre o GAP de {gap > 0 ? `R$ ${gap.toLocaleString("pt-BR")}` : "—"}
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <DiscountColumn variant="safe" title="Seguro" range="0% – 30%" rows={columns.safe} />
+            <DiscountColumn variant="moderate" title="Moderado" range="30% – 60%" rows={columns.moderate} />
+            <DiscountColumn variant="risky" title="Arriscado" range="60% – 90%" rows={columns.risky} />
+          </div>
+        </section>
+
+        <footer className="pt-4 text-center text-xs text-muted-foreground">
+          Os percentuais são aplicados sobre o GAP (lucro), não sobre o valor de fábrica.
+        </footer>
+      </main>
     </div>
   );
 };
-
-const Index = PlaceholderIndex;
 
 export default Index;
