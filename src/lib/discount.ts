@@ -32,18 +32,27 @@ export function formatPercent(value: number, fractionDigits = 2): string {
   })}%`;
 }
 
+export type DiscountSource = "auto" | "custom" | "money";
+
 export interface DiscountRow {
   percent: number;
   discountValue: number;
   finalValue: number;
+  source?: DiscountSource;
 }
 
-export function buildDiscountRow(percent: number, finalPrice: number, gap: number): DiscountRow {
+export function buildDiscountRow(
+  percent: number,
+  finalPrice: number,
+  gap: number,
+  source: DiscountSource = "auto",
+): DiscountRow {
   const discountValue = gap * (percent / 100);
   return {
     percent,
     discountValue,
     finalValue: finalPrice - discountValue,
+    source,
   };
 }
 
