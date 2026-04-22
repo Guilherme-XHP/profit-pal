@@ -65,6 +65,14 @@ export default {
           soft: "hsl(var(--risky-soft))",
           border: "hsl(var(--risky-border))",
         },
+        "source-custom": {
+          DEFAULT: "hsl(var(--source-custom))",
+          soft: "hsl(var(--source-custom-soft))",
+        },
+        "source-money": {
+          DEFAULT: "hsl(var(--source-money))",
+          soft: "hsl(var(--source-money-soft))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
