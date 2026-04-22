@@ -6,7 +6,6 @@ import { Settings2 } from "lucide-react";
 export interface CalculatorInputs {
   finalPrice: number;
   factoryPrice: number;
-  desiredProfit: number;
   perColumn: number;
 }
 
@@ -15,11 +14,9 @@ interface Props {
   onChange: (next: CalculatorInputs) => void;
 }
 
-const fields: { key: keyof CalculatorInputs; label: string; suffix?: string; placeholder: string; step?: string }[] = [
-  { key: "finalPrice", label: "Valor final do produto", suffix: "R$", placeholder: "20000" },
-  { key: "factoryPrice", label: "Valor de fábrica", suffix: "R$", placeholder: "18000" },
-  { key: "desiredProfit", label: "Lucro desejado", suffix: "%", placeholder: "10" },
-  { key: "perColumn", label: "Valores por coluna", placeholder: "6", step: "1" },
+const fields: { key: "finalPrice" | "factoryPrice"; label: string; suffix?: string; placeholder: string; step?: string }[] = [
+  { key: "finalPrice", label: "Valor final do produto", suffix: "R$", placeholder: "0" },
+  { key: "factoryPrice", label: "Valor de fábrica", suffix: "R$", placeholder: "0" },
 ];
 
 export function InputsCard({ values, onChange }: Props) {
@@ -38,7 +35,7 @@ export function InputsCard({ values, onChange }: Props) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {fields.map((f) => (
             <div key={f.key} className="space-y-1.5">
               <Label htmlFor={f.key} className="text-xs font-medium uppercase tracking-wide text-muted-foreground">

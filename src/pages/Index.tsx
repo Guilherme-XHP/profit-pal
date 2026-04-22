@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
 import { Calculator } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { InputsCard, type CalculatorInputs } from "@/components/InputsCard";
 import { MoneyDiscount } from "@/components/MoneyDiscount";
@@ -10,12 +12,11 @@ import { buildDiscountRow, generateRange, type DiscountRow } from "@/lib/discoun
 
 const Index = () => {
   const [inputs, setInputs] = useState<CalculatorInputs>({
-    finalPrice: 20000,
-    factoryPrice: 18000,
-    desiredProfit: 10,
+    finalPrice: 0,
+    factoryPrice: 0,
     perColumn: 6,
   });
-  const [moneyValue, setMoneyValue] = useState("200");
+  const [moneyValue, setMoneyValue] = useState("");
   const [customValue, setCustomValue] = useState("");
   const [customGroups, setCustomGroups] = useState<{
     safe: DiscountRow[];
@@ -36,6 +37,12 @@ const Index = () => {
     const risky = [...make(60.01, 90), ...customGroups.risky].sort((a, b) => a.percent - b.percent);
     return { safe, moderate, risky };
   }, [inputs.finalPrice, inputs.perColumn, gap, customGroups]);
+
+  const updatePerColumn = (raw: string) => {
+    const num = raw === "" ? 1 : Number(raw);
+    if (Number.isNaN(num)) return;
+    setInputs({ ...inputs, perColumn: num });
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -74,26 +81,26 @@ const Index = () => {
           gapPercent={gapPercent}
         />
 
-        {/* Tools row */}
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <MoneyDiscount
-            value={moneyValue}
-            onChange={setMoneyValue}
-            finalPrice={inputs.finalPrice}
-            gap={gap}
-          />
-          <CustomPercents
-            value={customValue}
-            onChange={setCustomValue}
-            onParsed={setCustomGroups}
-            finalPrice={inputs.finalPrice}
-            gap={gap}
-          />
-        </div>
+        {/* Custom percents — main tool */}
+        <CustomPercents
+          value={customValue}
+          onChange={setCustomValue}
+          onParsed={setCustomGroups}
+          finalPrice={inputs.finalPrice}
+          gap={gap}
+        />
+
+        {/* Money discount — secondary helper */}
+        <MoneyDiscount
+          value={moneyValue}
+          onChange={setMoneyValue}
+          finalPrice={inputs.finalPrice}
+          gap={gap}
+        />
 
         {/* Result columns */}
         <section>
-          <div className="mb-4 flex items-end justify-between">
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <h2 className="text-lg font-bold tracking-tight text-foreground">
                 Faixas de desconto sugeridas
@@ -101,6 +108,26 @@ const Index = () => {
               <p className="text-sm text-muted-foreground">
                 Calculadas sobre o GAP de {gap > 0 ? `R$ ${gap.toLocaleString("pt-BR")}` : "—"}
               </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Label
+                htmlFor="perColumn"
+                className="text-xs font-medium uppercase tracking-wide text-muted-foreground whitespace-nowrap"
+              >
+                Valores por coluna
+              </Label>
+              <Input
+                id="perColumn"
+                type="number"
+                inputMode="numeric"
+                min={1}
+                max={20}
+                step="1"
+                value={inputs.perColumn === 0 ? "" : inputs.perColumn}
+                placeholder="6"
+                onChange={(e) => updatePerColumn(e.target.value)}
+                className="h-10 w-20 text-base font-medium tabular-nums"
+              />
             </div>
           </div>
 
