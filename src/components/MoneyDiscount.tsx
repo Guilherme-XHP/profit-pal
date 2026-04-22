@@ -53,7 +53,7 @@ export function MoneyDiscount({ value, onChange, finalPrice, gap }: Props) {
         <div className="grid grid-cols-2 gap-3">
           <div className="rounded-xl border border-border/60 bg-muted/40 p-4">
             <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-              % sobre o GAP
+              % sobre o Lucro
             </p>
             <p className="mt-1 text-2xl font-bold tabular-nums text-foreground">
               {valid ? formatPercent(percent) : "—"}
