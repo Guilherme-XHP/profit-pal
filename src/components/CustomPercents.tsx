@@ -34,7 +34,7 @@ export function CustomPercents({ value, onChange, onParsed, finalPrice, gap }: P
     parsed.forEach((p) => {
       const level = classifyRisk(p);
       if (level === "out") return;
-      groups[level].push(buildDiscountRow(p, finalPrice, gap));
+      groups[level].push(buildDiscountRow(p, finalPrice, gap, "custom"));
     });
     onParsed(groups);
     // eslint-disable-next-line react-hooks/exhaustive-deps

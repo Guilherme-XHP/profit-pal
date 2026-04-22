@@ -28,16 +28,43 @@ const Index = () => {
   const gap = Math.max(inputs.finalPrice - inputs.factoryPrice, 0);
   const gapPercent = inputs.factoryPrice > 0 ? (gap / inputs.factoryPrice) * 100 : 0;
 
+  const moneyAmount = moneyValue === "" ? 0 : Number(moneyValue) || 0;
+  const moneyPercent = gap > 0 && moneyAmount > 0 ? (moneyAmount / gap) * 100 : 0;
+
+  const customParsedPercents = useMemo(
+    () =>
+      customValue
+        .split(/[,;\s]+/)
+        .map((s) => Number(s.replace("%", "").replace(",", ".").trim()))
+        .filter((n) => !Number.isNaN(n) && n > 0),
+    [customValue],
+  );
+
   const columns = useMemo(() => {
     const count = Math.max(1, Math.min(20, Math.floor(inputs.perColumn || 1)));
     const make = (start: number, end: number) =>
-      generateRange(start, end, count).map((p) => buildDiscountRow(p, inputs.finalPrice, gap));
+      generateRange(start, end, count).map((p) => buildDiscountRow(p, inputs.finalPrice, gap, "auto"));
 
-    const safe = [...make(0.01, 30), ...customGroups.safe].sort((a, b) => a.percent - b.percent);
-    const moderate = [...make(30.01, 60), ...customGroups.moderate].sort((a, b) => a.percent - b.percent);
-    const risky = [...make(60.01, 90), ...customGroups.risky].sort((a, b) => a.percent - b.percent);
+    const moneyRow =
+      moneyPercent > 0 && moneyPercent <= 90
+        ? buildDiscountRow(moneyPercent, inputs.finalPrice, gap, "money")
+        : null;
+    const moneyLevel = moneyRow
+      ? moneyPercent <= 30
+        ? "safe"
+        : moneyPercent <= 60
+        ? "moderate"
+        : "risky"
+      : null;
+
+    const withMoney = (level: "safe" | "moderate" | "risky", base: DiscountRow[]) =>
+      moneyRow && moneyLevel === level ? [...base, moneyRow] : base;
+
+    const safe = [...withMoney("safe", make(0.01, 30)), ...customGroups.safe].sort((a, b) => a.percent - b.percent);
+    const moderate = [...withMoney("moderate", make(30.01, 60)), ...customGroups.moderate].sort((a, b) => a.percent - b.percent);
+    const risky = [...withMoney("risky", make(60.01, 90)), ...customGroups.risky].sort((a, b) => a.percent - b.percent);
     return { safe, moderate, risky };
-  }, [inputs.finalPrice, inputs.perColumn, gap, customGroups]);
+  }, [inputs.finalPrice, inputs.perColumn, gap, customGroups, moneyPercent]);
 
   const updatePerColumn = (raw: string) => {
     const num = raw === "" ? 1 : Number(raw);
@@ -103,11 +130,8 @@ const Index = () => {
               <SmartSuggestions
                 finalPrice={inputs.finalPrice}
                 gap={gap}
-                anchorAmount={moneyValue === "" ? 0 : Number(moneyValue) || 0}
-                anchorPercents={customValue
-                  .split(/[,;\s]+/)
-                  .map((s) => Number(s.replace("%", "").replace(",", ".").trim()))
-                  .filter((n) => !Number.isNaN(n) && n > 0)}
+                anchorAmount={moneyAmount}
+                anchorPercents={customParsedPercents}
               />
             </div>
           </section>
