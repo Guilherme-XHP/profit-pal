@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Percent } from "lucide-react";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { buildDiscountRow, classifyRisk } from "@/lib/discount";
 import type { DiscountRow } from "@/lib/discount";
 
@@ -25,7 +25,7 @@ export function CustomPercents({ value, onChange, onParsed, finalPrice, gap }: P
       .filter((n) => !Number.isNaN(n));
   }, [value]);
 
-  useMemo(() => {
+  useEffect(() => {
     const groups: { safe: DiscountRow[]; moderate: DiscountRow[]; risky: DiscountRow[] } = {
       safe: [],
       moderate: [],
